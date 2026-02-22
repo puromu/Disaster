@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using DisasterApi.Data;
 using StackExchange.Redis;
 using static DisasterApi.Models.Disaster;
 
@@ -7,13 +6,11 @@ namespace DisasterApi.Services
 {
     public class DisasterService
     {
-        private readonly InMemoryStore _store;
         private readonly IDatabase _db;
         private const string AreaKey = "areas";
         private const string TruckKey = "trucks";
-        public DisasterService(InMemoryStore store, IConnectionMultiplexer redis)
+        public DisasterService(IConnectionMultiplexer redis)
         {
-            _store = store;
             _db = redis.GetDatabase();
         }
 

@@ -1,4 +1,3 @@
-using DisasterApi.Data;
 using DisasterApi.Services;
 using StackExchange.Redis;
 
@@ -10,7 +9,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<DisasterService>();
-builder.Services.AddSingleton<InMemoryStore>();
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {

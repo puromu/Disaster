@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using DisasterApi.Data;
 using DisasterApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using StackExchange.Redis;
@@ -12,17 +11,15 @@ namespace DisasterApi.Controllers
     public class DisasterController : ControllerBase
     {
         private readonly DisasterService _service;
-        private readonly InMemoryStore _store;
         private readonly IConnectionMultiplexer _redis;
         private readonly IDatabase _db;
         private const string AreaKey = "areas";
         private const string TruckKey = "trucks";
         private const string CacheKey = "last_assignment";
 
-        public DisasterController(DisasterService service, InMemoryStore store, IConnectionMultiplexer redis)
+        public DisasterController(DisasterService service, IConnectionMultiplexer redis)
         {
             _service = service;
-            _store = store;
             _redis = redis;
             _db = _redis.GetDatabase();
         }
@@ -128,7 +125,7 @@ namespace DisasterApi.Controllers
                 });
             }
 
-            var result = _service.AssignmentsAsync();
+            var result = await _service.AssignmentsAsync();
 
             await db.StringSetAsync(
                 CacheKey,
