@@ -56,12 +56,12 @@ namespace DisasterApi.Controllers
         {
             var entries = await _db.HashGetAllAsync(AreaKey);
 
-            if (entries == null)
-                return NotFound("NO Data");
-
             var areas = entries
                 .Select(e => JsonSerializer.Deserialize<Area>(e.Value!))
                 .ToList();
+
+            if (areas == null)
+                return NotFound("NO Data");
 
             return Ok(areas);
         }
@@ -97,14 +97,14 @@ namespace DisasterApi.Controllers
         {
             var entries = await _db.HashGetAllAsync(TruckKey);
 
-            if (entries == null)
-                return NotFound("NO Data");
-
-            var areas = entries
+            var trucks = entries
                 .Select(e => JsonSerializer.Deserialize<Truck>(e.Value!))
                 .ToList();
 
-            return Ok(areas);
+            if (trucks == null)
+                return NotFound("NO Data");
+
+            return Ok(trucks);
         }
 
         [HttpPost]
