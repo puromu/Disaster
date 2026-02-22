@@ -74,19 +74,23 @@ namespace DisasterApi.Controllers
         public async Task<IActionResult> AddTrucks([FromBody] List<Truck> requests)
         {
             if (requests == null || !requests.Any())
-            {
                 return BadRequest("No Request Data");
-            }
 
             foreach (var request in requests)
             {
-                if (_store.Trucks.Any(a => a.TruckId == request.TruckId))
+                var exists = await _db.HashExistsAsync(TruckKey, request.TruckId);
+
+                if (exists)
                     return Conflict($"Truck with ID {request.TruckId} already exists.");
 
-                _store.Trucks.Add(request);
+                await _db.HashSetAsync(
+                    TruckKey,
+                    request.TruckId,
+                    JsonSerializer.Serialize(request)
+                );
             }
 
-            await _redis.GetDatabase().KeyDeleteAsync(CacheKey);
+            await _db.KeyDeleteAsync(CacheKey);
 
             return Ok(requests);
         }
