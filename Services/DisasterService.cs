@@ -1,4 +1,6 @@
-﻿using DisasterApi.Data;
+﻿using System.Text.Json;
+using DisasterApi.Data;
+using StackExchange.Redis;
 using static DisasterApi.Models.Disaster;
 
 namespace DisasterApi.Services
@@ -6,40 +8,51 @@ namespace DisasterApi.Services
     public class DisasterService
     {
         private readonly InMemoryStore _store;
-
-        public DisasterService(InMemoryStore store)
+        private readonly IDatabase _db;
+        private const string AreaKey = "areas";
+        private const string TruckKey = "trucks";
+        public DisasterService(InMemoryStore store, IConnectionMultiplexer redis)
         {
             _store = store;
+            _db = redis.GetDatabase();
         }
 
-        public List<AssignmentResponse> Assignments()
+        public async Task<List<AssignmentResponse>> AssignmentsAsync()
         {
             var results = new List<AssignmentResponse>();
-            var availableTrucks = new List<Truck>(_store.Trucks);
 
-            var sortedAreas = _store.Areas
-                .OrderByDescending(a => a.UrgencyLevel)
+            // 🔹 ดึง Areas จาก Redis
+            var areaEntries = await _db.HashGetAllAsync(AreaKey);
+            var areas = areaEntries
+                .Select(e => JsonSerializer.Deserialize<Area>(e.Value!))
+                .Where(a => a != null)
+                .OrderByDescending(a => a!.UrgencyLevel)
                 .ToList();
 
-            foreach (var area in sortedAreas)
+            // 🔹 ดึง Trucks จาก Redis
+            var truckEntries = await _db.HashGetAllAsync(TruckKey);
+            var availableTrucks = truckEntries
+                .Select(e => JsonSerializer.Deserialize<Truck>(e.Value!))
+                .Where(t => t != null)
+                .ToList();
+
+            foreach (var area in areas!)
             {
                 bool assigned = false;
                 bool anyTimeValid = false;
                 bool anyResourceValid = false;
 
-                foreach (var truck in availableTrucks)
+                foreach (var truck in availableTrucks!)
                 {
-                    if (truck.TravelTimeToArea == null ||
-                        !truck.TravelTimeToArea.ContainsKey(area.AreaId))
+                    if (truck!.TravelTimeToArea == null ||
+                        !truck.TravelTimeToArea.ContainsKey(area!.AreaId))
                         continue;
 
-                    // 🟢 ตรวจว่าไปทันเวลาไหม
                     if (truck.TravelTimeToArea[area.AreaId] > area.TimeConstraint)
                         continue;
 
                     anyTimeValid = true;
 
-                    // 🟢 ตรวจ resource ครบไหม
                     bool canFulfill = true;
 
                     if (area.RequiredResources == null ||

@@ -14,7 +14,9 @@ namespace DisasterApi.Controllers
         private readonly DisasterService _service;
         private readonly InMemoryStore _store;
         private readonly IConnectionMultiplexer _redis;
-
+        private readonly IDatabase _db;
+        private const string AreaKey = "areas";
+        private const string TruckKey = "trucks";
         private const string CacheKey = "last_assignment";
 
         public DisasterController(DisasterService service, InMemoryStore store, IConnectionMultiplexer redis)
@@ -22,6 +24,7 @@ namespace DisasterApi.Controllers
             _service = service;
             _store = store;
             _redis = redis;
+            _db = _redis.GetDatabase();
         }
 
 
@@ -34,15 +37,36 @@ namespace DisasterApi.Controllers
 
             foreach (var request in requests)
             {
-                if (_store.Areas.Any(a => a.AreaId == request.AreaId))
+                var exists = await _db.HashExistsAsync(AreaKey, request.AreaId);
+
+                if (exists)
                     return Conflict($"Area with ID {request.AreaId} already exists.");
 
-                _store.Areas.Add(request);
+                await _db.HashSetAsync(
+                    AreaKey,
+                    request.AreaId,
+                    JsonSerializer.Serialize(request)
+                );
             }
 
-            await _redis.GetDatabase().KeyDeleteAsync(CacheKey);
+            await _db.KeyDeleteAsync(CacheKey);
 
             return Ok(requests);
+        }
+
+        [HttpGet("areas")]
+        public async Task<IActionResult> GetAreas()
+        {
+            var entries = await _db.HashGetAllAsync(AreaKey);
+
+            if (entries == null)
+                return NotFound("NO Data");
+
+            var areas = entries
+                .Select(e => JsonSerializer.Deserialize<Area>(e.Value!))
+                .ToList();
+
+            return Ok(areas);
         }
 
         [HttpPost]
@@ -67,6 +91,21 @@ namespace DisasterApi.Controllers
             return Ok(requests);
         }
 
+        [HttpGet("trucks")]
+        public async Task<IActionResult> GetTrucks()
+        {
+            var entries = await _db.HashGetAllAsync(TruckKey);
+
+            if (entries == null)
+                return NotFound("NO Data");
+
+            var areas = entries
+                .Select(e => JsonSerializer.Deserialize<Truck>(e.Value!))
+                .ToList();
+
+            return Ok(areas);
+        }
+
         [HttpPost]
         [Route("assignments")]
         public async Task<IActionResult> Assignments()
@@ -85,7 +124,7 @@ namespace DisasterApi.Controllers
                 });
             }
 
-            var result = _service.Assignments();
+            var result = _service.AssignmentsAsync();
 
             await db.StringSetAsync(
                 CacheKey,
@@ -119,7 +158,10 @@ namespace DisasterApi.Controllers
         public async Task<IActionResult> ClearAssignments()
         {
             var db = _redis.GetDatabase();
-            await db.KeyDeleteAsync(CacheKey);
+
+            await _db.KeyDeleteAsync(AreaKey);
+            await _db.KeyDeleteAsync(TruckKey);
+            await _db.KeyDeleteAsync(CacheKey);
 
             return Ok("Successful cache cleared.");
         }
