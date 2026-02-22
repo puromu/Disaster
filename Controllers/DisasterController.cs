@@ -60,8 +60,8 @@ namespace DisasterApi.Controllers
                 .Select(e => JsonSerializer.Deserialize<Area>(e.Value!))
                 .ToList();
 
-            if (areas == null)
-                return NotFound("NO Data");
+            if (!areas.Any() && areas.Count == 0)
+                return NotFound("NO Areas Data");
 
             return Ok(areas);
         }
@@ -101,8 +101,8 @@ namespace DisasterApi.Controllers
                 .Select(e => JsonSerializer.Deserialize<Truck>(e.Value!))
                 .ToList();
 
-            if (trucks == null)
-                return NotFound("NO Data");
+            if ((!trucks.Any() && trucks.Count == 0))
+                return NotFound("NO Trucks Data");
 
             return Ok(trucks);
         }
