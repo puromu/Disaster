@@ -12,8 +12,17 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<DisasterService>();
 builder.Services.AddSingleton<InMemoryStore>();
-builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(builder.Configuration["Redis:ConnectionString"] ?? string.Empty));
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configuration = builder.Configuration.GetConnectionString("Redis");
+
+    if (string.IsNullOrEmpty(configuration))
+        throw new Exception("Redis connection string is not configured.");
+
+    return ConnectionMultiplexer.Connect(configuration);
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
