@@ -28,7 +28,7 @@ jobs:
 
       # Run tests
       - name: Run tests
-        run: dotnet test DisasterApi.sln --no-build --configuration Release
+        run: dotnet test DisasterApi.sln --no-build --no-restore --configuration Release
 
       # Publish ONLY API project
       - name: Publish API
