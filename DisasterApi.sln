@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisasterApi", "DisasterApi.csproj", "{EE150E74-4224-CA3B-B4E1-74E65E5501CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisasterApi.Tests", "..\DisasterApi.Tests\DisasterApi.Tests.csproj", "{B4E2DA69-1586-43D5-8934-61901CF114EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{EE150E74-4224-CA3B-B4E1-74E65E5501CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE150E74-4224-CA3B-B4E1-74E65E5501CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE150E74-4224-CA3B-B4E1-74E65E5501CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4E2DA69-1586-43D5-8934-61901CF114EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4E2DA69-1586-43D5-8934-61901CF114EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4E2DA69-1586-43D5-8934-61901CF114EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4E2DA69-1586-43D5-8934-61901CF114EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

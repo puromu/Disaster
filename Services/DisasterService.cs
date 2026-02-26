@@ -4,7 +4,7 @@ using static DisasterApi.Models.Disaster;
 
 namespace DisasterApi.Services
 {
-    public class DisasterService
+    public class DisasterService : IDisasterService
     {
         private readonly IDatabase _db;
         private const string AreaKey = "areas";

@@ -8,7 +8,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<DisasterService>();
+//builder.Services.AddScoped<DisasterService>();
+builder.Services.AddScoped<IDisasterService, DisasterService>();
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {

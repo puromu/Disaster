@@ -10,14 +10,14 @@ namespace DisasterApi.Controllers
     [Route("api")]
     public class DisasterController : ControllerBase
     {
-        private readonly DisasterService _service;
+        private readonly IDisasterService _service;
         private readonly IConnectionMultiplexer _redis;
         private readonly IDatabase _db;
         private const string AreaKey = "areas";
         private const string TruckKey = "trucks";
         private const string CacheKey = "last_assignment";
 
-        public DisasterController(DisasterService service, IConnectionMultiplexer redis)
+        public DisasterController(IDisasterService service, IConnectionMultiplexer redis)
         {
             _service = service;
             _redis = redis;
